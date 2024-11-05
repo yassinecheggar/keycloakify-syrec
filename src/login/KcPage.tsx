@@ -4,16 +4,39 @@ import type { KcContext } from "./KcContext";
 import { useI18n } from "./i18n";
 import DefaultPage from "keycloakify/login/DefaultPage";
 import Template from "./Template";
+import { ConfigProvider } from "antd";
+import { antToken, theme } from "../assets/styles/theme";
+import { ThemeProvider } from "styled-components";
+import { GlobalStyles } from "../GlobalStyle";
+import { px2remTransformer, StyleProvider } from '@ant-design/cssinjs';
+
 const UserProfileFormFields = lazy(
     () => import("keycloakify/login/UserProfileFormFields")
 );
+
 const DefaulteTemplate = lazy(() => import("keycloakify/login/Template"));
 const Login = lazy(() => import("./pages/Login"));
 
-
 const doMakeUserConfirmPassword = true;
+const px2rem = px2remTransformer({
+  });
 
-export default function KcPage(props: { kcContext: KcContext }) {
+function KcPage(props: { kcContext: KcContext }) {
+    return (
+        <ThemeProvider theme={theme} >
+            <GlobalStyles />
+            <ConfigProvider theme={{ token: antToken(theme) }} >
+                <StyleProvider transformers={[px2rem]}>
+                <KcPageContextualized {...props} />
+                </StyleProvider>
+            </ConfigProvider>
+        </ThemeProvider>
+    );
+}
+
+export default KcPage;
+
+function KcPageContextualized(props: { kcContext: KcContext }) {
     const { kcContext } = props;
 
     const { i18n } = useI18n({ kcContext });
@@ -48,4 +71,7 @@ export default function KcPage(props: { kcContext: KcContext }) {
     );
 }
 
-const classes = {} satisfies { [key in ClassKey]?: string };
+const classes = {
+    kcBodyClass: "",
+    kcHtmlClass: ""
+} satisfies { [key in ClassKey]?: string };
